@@ -5,5 +5,5 @@ package hk.hku.cs.videoalbum;
  */
 
 public class VideoCaptureActivity {
-    // testing
+    // testing new file
 }
