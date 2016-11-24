@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (username.trim().length() > 0 && password.trim().length() > 0) {
                     // login activity
-                    connect(username, password);
+                    connect(username, password, v);
                 } else {
                     // prompt enter both username and password
                     alert( "Login", "Please enter username and password" );
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         return new String(htmlBuffer);
     }
 
-    public void connect(final String username, final String password){
+    private void connect(final String username, final String password, final View v){
         final ProgressDialog pdialog = new ProgressDialog(this);
 
         pdialog.setCancelable(false);
@@ -129,7 +130,14 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject rootJSONObj = new JSONObject(jsonString);
                         String result = rootJSONObj.getString("result");
                         if ("SUCCESS".equals(result)) {
-                            alert( "Login", "Success" );
+                            //alert( "Login", "Success" );
+                            SharedPreferences preferences = v.getContext().getSharedPreferences("video-album-login", 0);
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putString("username", username);
+                            editor.putString("password", password);
+                            editor.apply();
+                            Intent myIntent = new Intent(v.getContext(), ListUserVideoActivity.class);
+                            startActivityForResult(myIntent, 0);
                         } else {
                             alert( "Login", "Failure" );
                         }
