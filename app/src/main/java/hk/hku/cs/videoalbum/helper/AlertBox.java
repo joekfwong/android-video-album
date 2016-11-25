@@ -1,4 +1,4 @@
-package hk.hku.cs.videoalbum.hk.hku.cs.videoalbum.helper;
+package hk.hku.cs.videoalbum.helper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

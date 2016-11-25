@@ -13,8 +13,8 @@ import android.widget.EditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import hk.hku.cs.videoalbum.hk.hku.cs.videoalbum.helper.AlertBox;
-import hk.hku.cs.videoalbum.hk.hku.cs.videoalbum.helper.RemoteServerConnect;
+import hk.hku.cs.videoalbum.helper.AlertBox;
+import hk.hku.cs.videoalbum.helper.RemoteServerConnect;
 
 public class MainActivity extends AppCompatActivity {
 

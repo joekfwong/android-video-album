@@ -1,13 +1,9 @@
-package hk.hku.cs.videoalbum.hk.hku.cs.videoalbum.helper;
+package hk.hku.cs.videoalbum.helper;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-/**
- * Created by joe.wong on 25/11/2016.
- */
 
 public class RemoteServerConnect {
 
