@@ -1,8 +1,6 @@
 package hk.hku.cs.videoalbum;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -15,12 +13,12 @@ import android.widget.EditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import hk.hku.cs.videoalbum.hk.hku.cs.videoalbum.helper.AlertBox;
+import hk.hku.cs.videoalbum.hk.hku.cs.videoalbum.helper.RemoteServerConnect;
 
 public class MainActivity extends AppCompatActivity {
+
+    private AlertBox alertBox = new AlertBox();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                 if (username.trim().length() > 0 && password.trim().length() > 0) {
                     connect(username, password);
                 } else {
-                    alert( "Login", "Please enter username and password" );
+                    alertBox.alert("Login", "Please enter username and password");
                 }
             }
         });
@@ -50,61 +48,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(myIntent, 0);
             }
         });
-    }
-
-    protected void alert(String title, String mymessage){
-        new AlertDialog.Builder(this)
-                .setMessage(mymessage)
-                .setTitle(title)
-                .setCancelable(true)
-                .setNegativeButton(android.R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton){}
-                        }
-                )
-                .show();
-    }
-
-    public String getJsonPage(String url) {
-        HttpURLConnection httpURLConnection = null;
-        final int HTML_BUFFER_SIZE = 2*1024*1024;
-        char htmlBuffer[] = new char[HTML_BUFFER_SIZE];
-
-        try {
-            URL url_page = new URL(url);
-            httpURLConnection = (HttpURLConnection) url_page.openConnection();
-            httpURLConnection.setInstanceFollowRedirects(true);
-
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-            String response = readerResponse(bufferedReader, htmlBuffer, HTML_BUFFER_SIZE);
-            bufferedReader.close();
-            return response;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Fail to login";
-        } finally {
-            // When HttpClient instance is no longer needed,
-            // shut down the connection manager to ensure
-            // immediate deallocation of all system resources
-            if (httpURLConnection != null) {
-                httpURLConnection.disconnect();
-            }
-        }
-    }
-
-    public String readerResponse(BufferedReader reader, char [] htmlBuffer, int bufSz) throws java.io.IOException
-    {
-        htmlBuffer[0] = '\0';
-        int offset = 0;
-        do {
-            int cnt = reader.read(htmlBuffer, offset, bufSz - offset);
-            if (cnt > 0) {
-                offset += cnt;
-            } else {
-                break;
-            }
-        } while (true);
-        return new String(htmlBuffer);
     }
 
     private void connect(final String username, final String password){
@@ -123,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected String doInBackground(String... arg0) {
                 success = true;
-                jsonString = getJsonPage(url);
+                RemoteServerConnect connect = new RemoteServerConnect();
+                jsonString = connect.getUrlResponse(url);
                 if (jsonString.equals("Fail to login"))
                     success = false;
                 return null;
@@ -144,18 +88,16 @@ public class MainActivity extends AppCompatActivity {
                             Intent myIntent = new Intent(MainActivity.this, ListUserVideoActivity.class);
                             startActivityForResult(myIntent, 0);
                         } else {
-                            alert( "Login", "Failure" );
+                            alertBox.alert("Login", "Failure");
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                 } else {
-                    alert( "Error", "Fail to login" );
+                    alertBox.alert("Error", "Fail to login");
                 }
                 pdialog.hide();
             }
         }.execute("");
     }
-
 }
