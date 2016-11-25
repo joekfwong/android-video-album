@@ -38,7 +38,8 @@
         <activity
             android:name=".ListUserVideoActivity"
             android:label="@string/title_activity_list_user_video"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".SignUpActivity"></activity>
     </application>
 
 </manifest>

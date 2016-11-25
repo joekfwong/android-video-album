@@ -35,12 +35,19 @@ public class MainActivity extends AppCompatActivity {
                 String password = ((EditText) findViewById(R.id.passwordInput)).getText().toString();
 
                 if (username.trim().length() > 0 && password.trim().length() > 0) {
-                    // login activity
-                    connect(username, password, v);
+                    connect(username, password);
                 } else {
-                    // prompt enter both username and password
                     alert( "Login", "Please enter username and password" );
                 }
+            }
+        });
+
+        Button signUpBtn = (Button) findViewById(R.id.signUpBtn);
+        signUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, SignUpActivity.class);
+                startActivityForResult(myIntent, 0);
             }
         });
     }
@@ -59,19 +66,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getJsonPage(String url) {
-        HttpURLConnection conn_cshomepage = null;
+        HttpURLConnection httpURLConnection = null;
         final int HTML_BUFFER_SIZE = 2*1024*1024;
         char htmlBuffer[] = new char[HTML_BUFFER_SIZE];
 
         try {
-            URL url_cshomepage = new URL(url);
-            conn_cshomepage = (HttpURLConnection) url_cshomepage.openConnection();
-            conn_cshomepage.setInstanceFollowRedirects(true);
+            URL url_page = new URL(url);
+            httpURLConnection = (HttpURLConnection) url_page.openConnection();
+            httpURLConnection.setInstanceFollowRedirects(true);
 
-            BufferedReader reader_moodle = new BufferedReader(new InputStreamReader(conn_cshomepage.getInputStream()));
-            String HTMLSource = ReadBufferedHTML(reader_moodle, htmlBuffer, HTML_BUFFER_SIZE);
-            reader_moodle.close();
-            return HTMLSource;
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            String response = readerResponse(bufferedReader, htmlBuffer, HTML_BUFFER_SIZE);
+            bufferedReader.close();
+            return response;
         } catch (Exception e) {
             e.printStackTrace();
             return "Fail to login";
@@ -79,13 +86,13 @@ public class MainActivity extends AppCompatActivity {
             // When HttpClient instance is no longer needed,
             // shut down the connection manager to ensure
             // immediate deallocation of all system resources
-            if (conn_cshomepage != null) {
-                conn_cshomepage.disconnect();
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
             }
         }
     }
 
-    public String ReadBufferedHTML(BufferedReader reader, char [] htmlBuffer, int bufSz) throws java.io.IOException
+    public String readerResponse(BufferedReader reader, char [] htmlBuffer, int bufSz) throws java.io.IOException
     {
         htmlBuffer[0] = '\0';
         int offset = 0;
@@ -100,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         return new String(htmlBuffer);
     }
 
-    private void connect(final String username, final String password, final View v){
+    private void connect(final String username, final String password){
         final ProgressDialog pdialog = new ProgressDialog(this);
 
         pdialog.setCancelable(false);
@@ -115,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected String doInBackground(String... arg0) {
-                // TODO Auto-generated method stub
                 success = true;
                 jsonString = getJsonPage(url);
                 if (jsonString.equals("Fail to login"))
@@ -130,13 +136,12 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject rootJSONObj = new JSONObject(jsonString);
                         String result = rootJSONObj.getString("result");
                         if ("SUCCESS".equals(result)) {
-                            //alert( "Login", "Success" );
-                            SharedPreferences preferences = v.getContext().getSharedPreferences("video-album-login", 0);
+                            SharedPreferences preferences = MainActivity.this.getSharedPreferences("video-album-login", 0);
                             SharedPreferences.Editor editor = preferences.edit();
                             editor.putString("username", username);
                             editor.putString("password", password);
                             editor.apply();
-                            Intent myIntent = new Intent(v.getContext(), ListUserVideoActivity.class);
+                            Intent myIntent = new Intent(MainActivity.this, ListUserVideoActivity.class);
                             startActivityForResult(myIntent, 0);
                         } else {
                             alert( "Login", "Failure" );
