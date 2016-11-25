@@ -1,6 +1,9 @@
 package hk.hku.cs.videoalbum;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -18,8 +21,6 @@ import hk.hku.cs.videoalbum.helper.RemoteServerConnect;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AlertBox alertBox = new AlertBox();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                 if (username.trim().length() > 0 && password.trim().length() > 0) {
                     connect(username, password);
                 } else {
-                    alertBox.alert("Login", "Please enter username and password");
+                    alert("Login", "Please enter username and password");
                 }
             }
         });
@@ -48,6 +49,20 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(myIntent, 0);
             }
         });
+    }
+
+    private void alert(String title, String mymessage) {
+        new AlertDialog.Builder(this)
+                .setMessage(mymessage)
+                .setTitle(title)
+                .setCancelable(true)
+                .setNegativeButton(android.R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                            }
+                        }
+                )
+                .show();
     }
 
     private void connect(final String username, final String password){
@@ -88,13 +103,13 @@ public class MainActivity extends AppCompatActivity {
                             Intent myIntent = new Intent(MainActivity.this, ListUserVideoActivity.class);
                             startActivityForResult(myIntent, 0);
                         } else {
-                            alertBox.alert("Login", "Failure");
+                            alert("Login", "Failure");
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    alertBox.alert("Error", "Fail to login");
+                    alert("Error", "Fail to login");
                 }
                 pdialog.hide();
             }
