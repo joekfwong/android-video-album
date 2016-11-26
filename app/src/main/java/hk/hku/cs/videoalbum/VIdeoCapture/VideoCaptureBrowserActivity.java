@@ -15,12 +15,19 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 import hk.hku.cs.videoalbum.R;
+
+import org.apache.http.*;
 
 /**
  * Created by a on 11/20/2016.
@@ -104,6 +111,9 @@ public class VideoCaptureBrowserActivity extends Activity {
     private void StartVideoCapture() {
         Uri viduri = getOutputMediaFileUri();
 
+        //TODO: coding
+        uploadVideo(viduri);
+
         Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, viduri);
         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
@@ -112,6 +122,50 @@ public class VideoCaptureBrowserActivity extends Activity {
         intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (4 * 1024 * 1024));
 
         startActivityForResult(intent, VIDEO_CAPTURE_REQUEST);
+    }
+
+    //TODO: this is not from tutor's sample code
+    // if use HttpClient
+    // http://stackoverflow.com/questions/2975197/convert-file-uri-to-file-in-android
+//    http://stackoverflow.com/questions/29058727/i-need-an-alternative-option-to-httpclient-in-android-to-send-data-to-php-as-it
+    private void uploadFile(Uri uri) {
+//        https://www.javacodegeeks.com/2013/06/android-http-client-get-post-download-upload-multipart-request.html
+        HttpURLConnection con;
+        OutputStream os;
+        File video;
+        String url = "http://i.cs.hku.hk/~ltllu/php/upload.php";
+        Byte data;
+        try {
+            // open connection
+            con = (HttpURLConnection) (new URL(url)).openConnection();
+            con.setRequestMethod("POST");
+            con.setDoInput(true);
+            con.setDoOutput(true);
+            con.setRequestProperty("Connection", "Keep-Alive");
+            con.setRequestProperty("Content-Type", "multipart/form-data");
+//            con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            con.connect();
+            os = con.getOutputStream();
+
+            // upload files
+            String delimiter = "--";
+            String paramName = "file";
+            video = new File(uri.getPath());
+            String fileName = video.getName();
+            data =
+
+//            os.write( (delimiter + boundary + "\r\n").getBytes());
+            os.write( ("Content-Disposition: form-data; name=\"" + paramName +  "\"; filename=\"" + fileName + "\"\r\n"  ).getBytes());
+            os.write( ("Content-Type: application/octet-stream\r\n"  ).getBytes());
+            os.write( ("Content-Transfer-Encoding: binary\r\n"  ).getBytes());
+            os.write("\r\n".getBytes());
+
+            os.write(data);
+
+            os.write("\r\n".getBytes());
+        } catch (Exception e) {
+
+        }
     }
 
     private Uri getOutputMediaFileUri() {
