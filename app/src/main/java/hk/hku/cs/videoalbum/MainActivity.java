@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         pdialog.setMessage("Logging in ...");
         pdialog.show();
 
-        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/login.php?username=" + username + "&userkey=" + password;
+        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/login.php?action=login&username=" + username + "&userkey=" + password;
 
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
             boolean success;

@@ -112,6 +112,7 @@ public class ListUserVideoActivity extends AppCompatActivity
             SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
             SharedPreferences.Editor editor = preferences.edit();
             editor.clear();
+            editor.apply();
 
             Intent myIntent = new Intent(this, MainActivity.class);
             startActivityForResult(myIntent, 0);
