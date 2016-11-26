@@ -1,4 +1,4 @@
-package hk.hku.cs.videoalbum.VIdeoCapture;
+package hk.hku.cs.videoalbum.videocapture;
 
 
 import android.app.Activity;
