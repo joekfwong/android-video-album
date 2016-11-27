@@ -89,7 +89,7 @@ public class VideoCaptureBrowserActivity extends Activity {
             Uri videoUri = data.getData();
 
             //TODO: mine on video uploading
-            /*
+
             File myFile = new File(videoUri.getPath());
             final String videoPath = myFile.getAbsolutePath();
 
@@ -104,7 +104,7 @@ public class VideoCaptureBrowserActivity extends Activity {
                     uploadFile(videoPath);
                     Log.d("On Activity Result", "upload done");
                 }
-            }).start();*/
+            }).start();
 
             MediaController mediaController = new MediaController(this);
             mediaController.setAnchorView(mVideoView);
@@ -116,8 +116,8 @@ public class VideoCaptureBrowserActivity extends Activity {
             mVideoView.start();
 
             //TODO: try calling BrowerView
-            Intent intent = new Intent(this, BrowserViewBrowserActivity.class);
-            startActivity(intent);
+//            Intent intent = new Intent(this, BrowserViewBrowserActivity.class);
+//            startActivity(intent);
         }
     }
 
@@ -164,6 +164,7 @@ public class VideoCaptureBrowserActivity extends Activity {
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary = "*****";
+        String randomeStr = "webKitFormBoundaryZb6k6WJ3mtDklowQ";
         int bytesRead, bytesAvailable, bufferSize;
         byte[] buffer;
         int maxBufferSize = 1 * 1024 * 1024;
@@ -196,23 +197,42 @@ public class VideoCaptureBrowserActivity extends Activity {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Connection", "Keep-Alive");
                 conn.setRequestProperty("ENCTYPE", "multipart/form-data");
-                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                conn.setRequestProperty("file", fileName);
+                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + twoHyphens + twoHyphens + randomeStr);
+
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+//                conn.setRequestProperty("file", fileName);
+
 //                TODO: LOG FILENAME
                 Log.i("file name", fileName);
 
                 dos = new DataOutputStream(conn.getOutputStream());
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
-                dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\""
-                                + fileName + "\"" + lineEnd);
+//                dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + fileName + "\"" + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"file=\"; filename=\"" + sourceFile.getName() + "\"" + lineEnd);
+                dos.writeBytes("Content-Type:" + "video/mp4" + lineEnd);
+                dos.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
 
-                        dos.writeBytes(lineEnd);
+                dos.writeBytes(lineEnd);
 
                 //TODO: choose which toByte
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"" + "file" + "\"" + lineEnd);
+                dos.writeBytes("Content-Type: video/mp4" + lineEnd);
+                dos.writeBytes(lineEnd);
                 dos.write(fileToByte(sourceFile));
-                Log.d("UploadFile . Write Byte", "written");
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+/*
+                dos.write(fileToByte(sourceFile));
+                dos.write("\r\n".getBytes());
+                dos.flush();
+                Log.d("UploadFile . Write Byte", "written");*/
 
+                //TODO: for getting response from php
+                InputStream is = conn.getInputStream();
+
+                // a version of uploading
                 /*
                 // create a buffer of  maximum size
                 bytesAvailable = fileInputStream.available();
@@ -250,33 +270,40 @@ public class VideoCaptureBrowserActivity extends Activity {
 
                     runOnUiThread(new Runnable() {
                         public void run() {
+/*
 
                             String msg = "File Upload Completed.\n\n See uploaded file here : \n\n"
                                     + " http://www.androidexample.com/media/uploads/"
                                     + uploadFileName;
+*/
 
 //                            messageText.setText(msg);
-                            Toast.makeText(VideoCaptureBrowserActivity.this, "File Upload Complete.",
+                            Toast.makeText(VideoCaptureBrowserActivity.this, "File Upload Complete. New",
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
+                } else {
+                    Log.e("Upload Byte", "Fail to upload file");
                 }
 
                 //TODO: debug get response from server
-                InputStream is = conn.getInputStream();
+//                InputStream is = conn.getInputStream();
                 // retrieve the response from server
                 int ch;
                 StringBuffer strBuffer =new StringBuffer();
                 while( ( ch = is.read() ) != -1 ){ strBuffer.append( (char)ch ); }
                 String str = strBuffer.toString();
+
+                is.close();
                 Log.i("Response",str);
-                dos.close();
 
                 //close the streams //
 
+//                dos.write("\r\n".getBytes());       // end with line end
                 dos.flush();
                 dos.close();
                 fileInputStream.close();
+                conn.disconnect();
 
             } catch (MalformedURLException ex) {
 
@@ -390,7 +417,7 @@ public class VideoCaptureBrowserActivity extends Activity {
             dos.writeBytes("--" + boundary + "\r\n");
             dos.writeBytes("Content-Disposition: form-data; name=\"" + paramName + "\"; filename=\"" + fileName + "\"\r\n");
             dos.writeBytes("\r\n");
-            dos.flush();
+//            dos.flush();
 //            dos.write(("Content-Type: application/octet-stream\r\n").getBytes());
 //            dos.write(("Content-Transfer-Encoding: binary\r\n").getBytes());
 //            dos.write("\r\n".getBytes());
