@@ -40,6 +40,17 @@
             android:label="@string/title_activity_list_user_video"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".videocapture.VideoCaptureMainActivity">
+        </activity>
+
+        <activity
+            android:name=".videocapture.VideoCaptureBrowserActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+
+        <activity android:name=".browserView.BrowserViewMainActivity">
+        </activity>
+
+        <activity android:name=".browserView.BrowserViewBrowserActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package hk.hku.cs.videoalbum;
 
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import hk.hku.cs.videoalbum.videocapture.VideoCaptureBrowserActivity;
+
 public class ListUserVideoActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -30,8 +33,8 @@ public class ListUserVideoActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent myIntent = new Intent(ListUserVideoActivity.this, VideoCaptureBrowserActivity.class);
+                startActivityForResult(myIntent, 0);
             }
         });
 
