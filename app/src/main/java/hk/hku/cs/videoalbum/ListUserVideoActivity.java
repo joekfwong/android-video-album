@@ -1,8 +1,10 @@
 package hk.hku.cs.videoalbum;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,8 +17,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import hk.hku.cs.videoalbum.helper.RemoteServerConnect;
 import hk.hku.cs.videoalbum.videocapture.VideoCaptureBrowserActivity;
 
 public class ListUserVideoActivity extends AppCompatActivity
@@ -51,6 +68,69 @@ public class ListUserVideoActivity extends AppCompatActivity
         TextView textView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginNameTxt);
         textView.setText(preferences.getString("username", ""));
 
+        prepareList();
+    }
+
+    private void prepareList() {
+        final ProgressDialog pdialog = new ProgressDialog(this);
+
+        pdialog.setCancelable(false);
+        pdialog.setMessage("Logging in ...");
+        pdialog.show();
+
+        SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
+        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/videolist.php?username=" + preferences.getString("username", "");
+
+        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
+            boolean success;
+            String jsonString;
+
+            @Override
+            protected String doInBackground(String... arg0) {
+                success = true;
+                RemoteServerConnect connect = new RemoteServerConnect();
+                jsonString = connect.getUrlResponse(url);
+                if (jsonString.equals("Fail to login"))
+                    success = false;
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String response) {
+                if (success) {
+                    try {
+                        ListView listView = (ListView) findViewById(R.id.video_list);
+
+
+                        JSONObject rootJSONObj = new JSONObject(jsonString);
+                        JSONArray result = rootJSONObj.getJSONArray("videos");
+
+                        final List<String> filenamesList = new ArrayList<>();
+                        List<Map<String, String>> videoListName = new ArrayList<>();
+                        for (int i = 0; i < result.length(); i++) {
+                            String filename = result.getString(i);
+
+                            Map<String, String> map = new HashMap<>();
+                            map.put("videos", filename);
+                            videoListName.add(map);
+                        }
+                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this,videoListName, R.layout.video_list_item, new String[]{"videos"}, new int[]{R.id.video_file_name});
+                        listView.setAdapter(listAdapter);
+                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                System.out.println(adapterView.getItemAtPosition(i));
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //alert("Error", "Fail to login");
+                }
+                pdialog.hide();
+            }
+        }.execute("");
     }
 
     @Override
