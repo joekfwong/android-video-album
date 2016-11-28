@@ -26,4 +26,9 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
+
+    // use OkHttp
+    compile 'com.squareup.okhttp3:okhttp:3.4.2'
+    // use HttpClient
+//    compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
 }
