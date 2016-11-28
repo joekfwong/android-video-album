@@ -211,6 +211,9 @@ public class BrowserViewBrowserActivity extends Activity {
         // Enable Javascript
         settings.setJavaScriptEnabled(true);
 
+        //TODO: mine
+        settings.setDomStorageEnabled(true);
+
         // We set the WebViewClient to ensure links are consumed by the WebView rather
         // than passed to a browser if it can
         mWebView.setWebViewClient(new WebViewClient());
