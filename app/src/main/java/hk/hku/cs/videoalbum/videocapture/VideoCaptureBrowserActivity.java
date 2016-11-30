@@ -3,8 +3,8 @@ package hk.hku.cs.videoalbum.videocapture;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,12 +21,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +31,16 @@ import java.util.Locale;
 
 import hk.hku.cs.videoalbum.R;
 import hk.hku.cs.videoalbum.browserView.BrowserViewBrowserActivity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by a on 11/20/2016.
@@ -46,6 +53,12 @@ public class VideoCaptureBrowserActivity extends Activity {
   private static final int VIDEO_CAPTURE_REQUEST = 1111;
   private static final int VIDEO_CAPTURE_PERMISSION = 2222;
   private VideoView mVideoView;
+
+  private String uploadServerUrl = "http://i.cs.hku.hk/~kfwong/videoalbum/upload.php";
+  private String uploadServerHome = "http://i.cs.hku.hk/~ltllu/php/upload.htm";
+
+  //TODO: by OkHttp
+  private final OkHttpClient client = new OkHttpClient();
 
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -90,8 +103,14 @@ public class VideoCaptureBrowserActivity extends Activity {
 
       //TODO: mine on video uploading
 
-      File myFile = new File(videoUri.getPath());
-      final String videoPath = myFile.getAbsolutePath();
+      final File myFile = new File(videoUri.getPath());
+//            final String videoPath = myFile.getAbsolutePath();
+
+      if (myFile.isFile() && myFile.exists() && myFile != null) {
+        Log.d("file checking", "ok");
+      } else {
+        Log.d("file checking", "failed");
+      }
 
 
       new Thread(new Runnable() {
@@ -101,8 +120,14 @@ public class VideoCaptureBrowserActivity extends Activity {
             }
           });
 
-          uploadFile(videoPath);
-          Log.d("On Activity Result", "upload done");
+
+          //TODO: try upload by OkHttp
+          uploadFileOkHttp(uploadServerUrl, myFile);
+
+          //TODO: upload by url connection
+//                    uploadFile(videoPath);
+//                    uploadFile(myFile);
+//                    Log.d("On Activity Result", "upload done");
         }
       }).start();
 
@@ -115,7 +140,8 @@ public class VideoCaptureBrowserActivity extends Activity {
 
       mVideoView.start();
 
-      //TODO: try calling BrowerView
+      //TODO: upload by BrowerView ok
+//            uploadFileByBrowser();
 //            Intent intent = new Intent(this, BrowserViewBrowserActivity.class);
 //            startActivity(intent);
     }
@@ -149,14 +175,91 @@ public class VideoCaptureBrowserActivity extends Activity {
   }
 
   //TODO: this is not from tutor's sample code
-  public int uploadFile(String filePath) {
-    String upLoadServerUri = "http://i.cs.hku.hk/~ltllu/php/upload.php";
+//    http://stackoverflow.com/questions/23512547/how-to-use-okhttp-to-upload-a-file/30498514#30498514
+  public Boolean uploadFileOkHttp(String serverURL, File myFile) {
+    try {
+/*
+            RequestBody requestBody = new MultipartBody()
+                    .type(MultipartBody.FORM)
+                    .addFormDataPart("file", file.getName(),
+                            RequestBody.create(MediaType.parse("text/csv"), file))
+                    .addFormDataPart("some-field", "some-value")
+                    .build();*/
+
+//            RequestBody requestBody = RequestBody.create(MediaType.parse("video/mp4"), file);
+      SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
+      String username = preferences.getString("username", "");
+      RequestBody requestBody = new MultipartBody.Builder()
+              .setType(MultipartBody.FORM)
+              .addFormDataPart("file", myFile.getName(), RequestBody.create(MediaType.parse("video/mp4"), myFile))
+              .addFormDataPart("username", username)
+              .build();
+
+      Request request = new Request.Builder()
+              .url(serverURL)
+              .post(requestBody)
+              .build();
+
+      client.newCall(request).enqueue(new Callback() {
+
+        @Override
+//                public void onFailure(Request request, IOException e) {
+        public void onFailure(Call call, IOException e) {
+          // Handle the error
+          if (!call.isExecuted()) {
+            Log.e("Okhttp failure", "Call not executed");
+          }
+          Log.e("OkHttp failure", e.getStackTrace().toString());
+        }
+
+        @Override
+//                public void onResponse(Response response) throws IOException {
+//                public void onResponse(Call call, Response response) throws IOException {
+        public void onResponse(Call call, Response response) {
+          try {
+            if (!response.isSuccessful()) {
+              // Handle the error
+              Log.e("OkHttp response", "response is not successful");
+            }
+            if (!call.isExecuted()) {
+              Log.e("Okhttp response", "Call not executed");
+            }
+            Log.d("OkHttp Response", response.toString());
+            // Upload successful
+          } catch (Exception e) {
+            Log.e("OkHttp response", e.getStackTrace().toString());
+          }
+        }
+
+      });
+
+      return true;
+    } catch (Exception ex) {
+      // Handle the error
+    }
+    return false;
+  }
+
+  public void uploadFileByBrowser() {
+    Intent browserViewIntent = new Intent(this, BrowserViewBrowserActivity.class);
+
+//        browserViewIntent.putExtra("url", uploadServerUri);
+    browserViewIntent.putExtra("url", uploadServerHome);
+//        this.startActivity(browserViewIntent);
+    startActivityForResult(browserViewIntent, 0);
+  }
+
+  //    public int uploadFile(String filePath) {
+  public int uploadFile(File file) {
+//        String upLoadServerUri = "http://i.cs.hku.hk/~ltllu/php/upload.htm";
     int serverResponseCode = 0;
 
-    File sourceFile = new File(filePath);
-    final String uploadFileName = sourceFile.getName();
 
-    String fileName = uploadFileName;
+//        File sourceFile = new File(filePath);
+//        final String uploadFileName = file.getName();
+
+//        String fileName = uploadFileName;
+    String fileName = file.getName();
 //        String fileName = filePath;
 
     HttpURLConnection conn = null;
@@ -170,7 +273,7 @@ public class VideoCaptureBrowserActivity extends Activity {
     int maxBufferSize = 1 * 1024 * 1024;
 
 
-    if (!sourceFile.isFile()) {
+    if (!file.isFile()) {
 /*
             dialog.dismiss();
             Log.e("uploadFile", "Source File not exist :"
@@ -186,8 +289,8 @@ public class VideoCaptureBrowserActivity extends Activity {
       try {
 
         // open a URL connection to the Servlet
-        FileInputStream fileInputStream = new FileInputStream(sourceFile);
-        URL url = new URL(upLoadServerUri);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        URL url = new URL(uploadServerUrl);
 
         // Open a HTTP  connection to  the URL
         conn = (HttpURLConnection) url.openConnection();
@@ -196,10 +299,12 @@ public class VideoCaptureBrowserActivity extends Activity {
         conn.setUseCaches(false); // Don't use a Cached Copy
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Connection", "Keep-Alive");
-        conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+//                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
         conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + twoHyphens + twoHyphens + randomeStr);
 
-        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+//                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+        conn.setRequestProperty("User-Agent", System.getProperty("http.agent"));
+        conn.connect();
 //                conn.setRequestProperty("file", fileName);
 
 //                TODO: LOG FILENAME
@@ -209,7 +314,7 @@ public class VideoCaptureBrowserActivity extends Activity {
 
         dos.writeBytes(twoHyphens + boundary + lineEnd);
 //                dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + fileName + "\"" + lineEnd);
-        dos.writeBytes("Content-Disposition: form-data; name=\"file=\"; filename=\"" + sourceFile.getName() + "\"" + lineEnd);
+        dos.writeBytes("Content-Disposition: form-data; name=\"file=\";" + lineEnd);
         dos.writeBytes("Content-Type:" + "video/mp4" + lineEnd);
         dos.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
 
@@ -220,7 +325,7 @@ public class VideoCaptureBrowserActivity extends Activity {
         dos.writeBytes("Content-Disposition: form-data; name=\"" + "file" + "\"" + lineEnd);
         dos.writeBytes("Content-Type: video/mp4" + lineEnd);
         dos.writeBytes(lineEnd);
-        dos.write(fileToByte(sourceFile));
+        dos.write(fileToByte(file));
         dos.writeBytes(lineEnd);
         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 /*
@@ -258,7 +363,6 @@ public class VideoCaptureBrowserActivity extends Activity {
                 */
 
 
-
         // Responses from the server (code and message)
         serverResponseCode = conn.getResponseCode();
         String serverResponseMessage = conn.getResponseMessage();
@@ -278,7 +382,7 @@ public class VideoCaptureBrowserActivity extends Activity {
 */
 
 //                            messageText.setText(msg);
-              Toast.makeText(VideoCaptureBrowserActivity.this, "File Upload Complete. New",
+              Toast.makeText(VideoCaptureBrowserActivity.this, "File Upload Complete. old",
                       Toast.LENGTH_SHORT).show();
             }
           });
@@ -290,12 +394,14 @@ public class VideoCaptureBrowserActivity extends Activity {
 //                InputStream is = conn.getInputStream();
         // retrieve the response from server
         int ch;
-        StringBuffer strBuffer =new StringBuffer();
-        while( ( ch = is.read() ) != -1 ){ strBuffer.append( (char)ch ); }
+        StringBuffer strBuffer = new StringBuffer();
+        while ((ch = is.read()) != -1) {
+          strBuffer.append((char) ch);
+        }
         String str = strBuffer.toString();
 
         is.close();
-        Log.i("Response",str);
+        Log.i("Response", str);
 
         //close the streams //
 
@@ -445,11 +551,9 @@ public class VideoCaptureBrowserActivity extends Activity {
             */
 
 
-
       // server response
       serverResponseCode = conn.getResponseCode();
       String serverResponseMessage = conn.getResponseMessage();
-
 
 
       Log.i("uploadFile", "HTPP Response is : " + serverResponseCode + ":" + serverResponseMessage);
