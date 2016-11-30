@@ -65,17 +65,15 @@ public class ListUserVideoActivity extends AppCompatActivity
         SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
         TextView textView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginNameTxt);
         textView.setText(preferences.getString("username", ""));
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
         prepareList();
     }
 
     private void prepareList() {
-        final ProgressDialog pdialog = new ProgressDialog(this);
-
-        pdialog.setCancelable(false);
-        pdialog.setMessage("Logging in ...");
-        pdialog.show();
-
         SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
         final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/videolist.php?username=" + preferences.getString("username", "");
 
@@ -118,6 +116,7 @@ public class ListUserVideoActivity extends AppCompatActivity
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                 System.out.println(adapterView.getItemAtPosition(i));
+                                System.out.println(i);
                             }
                         });
                     } catch (JSONException e) {
@@ -126,7 +125,6 @@ public class ListUserVideoActivity extends AppCompatActivity
                 } else {
                     //alert("Error", "Fail to login");
                 }
-                pdialog.hide();
             }
         }.execute("");
     }
@@ -203,4 +201,5 @@ public class ListUserVideoActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }

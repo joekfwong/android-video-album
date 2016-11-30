@@ -57,9 +57,6 @@ public class VideoCaptureBrowserActivity extends Activity {
   private String uploadServerUrl = "http://i.cs.hku.hk/~kfwong/videoalbum/upload.php";
   private String uploadServerHome = "http://i.cs.hku.hk/~ltllu/php/upload.htm";
 
-  //TODO: by OkHttp
-  private final OkHttpClient client = new OkHttpClient();
-
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_video_capture_browser);
@@ -200,6 +197,8 @@ public class VideoCaptureBrowserActivity extends Activity {
               .post(requestBody)
               .build();
 
+      //TODO: by OkHttp
+      OkHttpClient client = new OkHttpClient();
       client.newCall(request).enqueue(new Callback() {
 
         @Override
