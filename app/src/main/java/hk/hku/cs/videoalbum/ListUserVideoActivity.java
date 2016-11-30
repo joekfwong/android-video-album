@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -97,11 +98,10 @@ public class ListUserVideoActivity extends AppCompatActivity
                     try {
                         ListView listView = (ListView) findViewById(R.id.video_list);
 
-
                         JSONObject rootJSONObj = new JSONObject(jsonString);
                         JSONArray result = rootJSONObj.getJSONArray("videos");
 
-                        final List<String> filenamesList = new ArrayList<>();
+                        final ArrayList<String> filenamesList = new ArrayList<>();
                         List<Map<String, String>> videoListName = new ArrayList<>();
                         for (int i = 0; i < result.length(); i++) {
                             String filename = result.getString(i);
@@ -117,13 +117,17 @@ public class ListUserVideoActivity extends AppCompatActivity
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                 System.out.println(adapterView.getItemAtPosition(i));
                                 System.out.println(i);
+                                Intent myIntent = new Intent(ListUserVideoActivity.this, VideoPlayer.class);
+                                myIntent.putExtra("position", i);
+                                myIntent.putStringArrayListExtra("filelist", filenamesList);
+                                startActivityForResult(myIntent, 0);
                             }
                         });
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    //alert("Error", "Fail to login");
+                    Toast.makeText(ListUserVideoActivity.this, "Cannot list video", Toast.LENGTH_SHORT).show();
                 }
             }
         }.execute("");
