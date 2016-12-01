@@ -24,6 +24,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences preferences = MainActivity.this.getSharedPreferences("video-album-login", 0);
+        String username = preferences.getString("username", "");
+        if (!"".equals(username)) {
+            Intent myIntent = new Intent(MainActivity.this, ListUserVideoActivity.class);
+            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            finishActivity (0);
+            startActivityForResult(myIntent, 0);
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         Button loginBtn = (Button) findViewById(R.id.loginBtn);
@@ -101,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
                             editor.putString("password", password);
                             editor.apply();
                             Intent myIntent = new Intent(MainActivity.this, ListUserVideoActivity.class);
+                            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                             startActivityForResult(myIntent, 0);
                         } else {
                             alert("Login", "Failure");
@@ -114,5 +130,10 @@ public class MainActivity extends AppCompatActivity {
                 pdialog.hide();
             }
         }.execute("");
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

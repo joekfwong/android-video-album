@@ -31,66 +31,34 @@ public class VideoPlayer extends ActionBarActivity {
 
         });
         final VideoView videoView = (VideoView) findViewById(R.id.videoView);
-        //Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.v01);
-        //videoView.setVideoURI(video);
-        //videoView.start();
-//        final List listA = new ArrayList<>();
-//        listA.add("http://i.cs.hku.hk/~kfwong/videoalbum/videos/joe/ee_13mar2012_part3.mp4");
 
         final List<String> fileList = this.getIntent().getStringArrayListExtra("filelist");
         final int position = this.getIntent().getIntExtra("position", 0);
 
-        final ListIterator listIterator = fileList.listIterator(position);
+        final ListIterator<String> listIterator = fileList.listIterator(position);
 
         Button next = (Button) findViewById(R.id.next);
         next.setOnClickListener(new OnClickListener() {
 
 
-            //CheckBox chck = (CheckBox) findViewById(R.id.checkBox);
-//            ListIterator listIterator = listA.listIterator();
-
             public void onClick(View v) {
-                //   Object randomItem = listA.get(new Random().nextInt(listA.size()));
-
-                //    if (chck.isChecked()) {
-                //        Uri video = Uri.parse(String.valueOf(randomItem));
-                //        videoView.setVideoURI(video);
-                //        videoView.start();
-                //    } else {
                 if(listIterator.hasNext()) {
                     Uri video = Uri.parse(String.valueOf(listIterator.next()));
                     videoView.setVideoURI(video);
                     videoView.start();
                 }
-                //    }
-
-
             }
         });
 
         Button prev = (Button) findViewById(R.id.prev);
         prev.setOnClickListener(new OnClickListener() {
 
-
-            //CheckBox chck = (CheckBox) findViewById(R.id.checkBox);
-//            ListIterator listIterator = listA.listIterator();
-
             public void onClick(View v) {
-                //Object randomItem = listA.get(new Random().nextInt(listA.size()));
-
-                //if (chck.isChecked()) {
-                //    Uri video = Uri.parse(String.valueOf(randomItem));
-                //    videoView.setVideoURI(video);
-                //    videoView.start();
-                //} else {
                 if(listIterator.hasPrevious()) {
                     Uri video = Uri.parse(String.valueOf(listIterator.previous()));
                     videoView.setVideoURI(video);
                     videoView.start();
                 }
-                //}
-
-
             }
         });
 
@@ -112,7 +80,7 @@ public class VideoPlayer extends ActionBarActivity {
 
             }});
 
-        Uri video = Uri.parse(fileList.get(position));
+        Uri video = Uri.parse(listIterator.next());
         videoView.setVideoURI(video);
         videoView.start();
     }
