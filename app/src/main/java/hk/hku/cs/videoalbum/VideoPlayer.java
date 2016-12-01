@@ -34,19 +34,20 @@ public class VideoPlayer extends ActionBarActivity {
         //Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.v01);
         //videoView.setVideoURI(video);
         //videoView.start();
-        final List listA = new ArrayList<>();
-        listA.add("http://i.cs.hku.hk/~kfwong/videoalbum/upload.php?video=ee_13mar2012_part3.mp4");
+//        final List listA = new ArrayList<>();
+//        listA.add("http://i.cs.hku.hk/~kfwong/videoalbum/videos/joe/ee_13mar2012_part3.mp4");
 
+        final List<String> fileList = this.getIntent().getStringArrayListExtra("filelist");
+        final int position = this.getIntent().getIntExtra("position", 0);
 
-
-
+        final ListIterator listIterator = fileList.listIterator(position);
 
         Button next = (Button) findViewById(R.id.next);
         next.setOnClickListener(new OnClickListener() {
 
 
             //CheckBox chck = (CheckBox) findViewById(R.id.checkBox);
-            ListIterator listIterator = listA.listIterator();
+//            ListIterator listIterator = listA.listIterator();
 
             public void onClick(View v) {
                 //   Object randomItem = listA.get(new Random().nextInt(listA.size()));
@@ -72,7 +73,7 @@ public class VideoPlayer extends ActionBarActivity {
 
 
             //CheckBox chck = (CheckBox) findViewById(R.id.checkBox);
-            ListIterator listIterator = listA.listIterator();
+//            ListIterator listIterator = listA.listIterator();
 
             public void onClick(View v) {
                 //Object randomItem = listA.get(new Random().nextInt(listA.size()));
@@ -111,5 +112,8 @@ public class VideoPlayer extends ActionBarActivity {
 
             }});
 
+        Uri video = Uri.parse(fileList.get(position));
+        videoView.setVideoURI(video);
+        videoView.start();
     }
 }

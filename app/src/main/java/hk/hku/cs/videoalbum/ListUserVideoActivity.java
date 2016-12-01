@@ -76,7 +76,8 @@ public class ListUserVideoActivity extends AppCompatActivity
 
     private void prepareList() {
         SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
-        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/videolist.php?username=" + preferences.getString("username", "");
+        final String username = preferences.getString("username", "");
+        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/videolist.php?username=" + username;
 
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
             boolean success;
@@ -106,6 +107,8 @@ public class ListUserVideoActivity extends AppCompatActivity
                         for (int i = 0; i < result.length(); i++) {
                             String filename = result.getString(i);
 
+                            filenamesList.add("http://i.cs.hku.hk/~kfwong/videoalbum/videos/" + username + "/" + filename);
+
                             Map<String, String> map = new HashMap<>();
                             map.put("videos", filename);
                             videoListName.add(map);
@@ -117,6 +120,7 @@ public class ListUserVideoActivity extends AppCompatActivity
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                 System.out.println(adapterView.getItemAtPosition(i));
                                 System.out.println(i);
+                                System.out.println(filenamesList.get(i));
                                 Intent myIntent = new Intent(ListUserVideoActivity.this, VideoPlayer.class);
                                 myIntent.putExtra("position", i);
                                 myIntent.putStringArrayListExtra("filelist", filenamesList);

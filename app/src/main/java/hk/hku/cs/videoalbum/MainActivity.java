@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                         if ("SUCCESS".equals(result)) {
                             SharedPreferences preferences = MainActivity.this.getSharedPreferences("video-album-login", 0);
                             SharedPreferences.Editor editor = preferences.edit();
-                            editor.putString("username", username);
+                            editor.putString("username", username.toLowerCase());
                             editor.putString("password", password);
                             editor.apply();
                             Intent myIntent = new Intent(MainActivity.this, ListUserVideoActivity.class);
