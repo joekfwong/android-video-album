@@ -19,6 +19,12 @@
             <!--android:icon="@drawable/ic_menu_manage"-->
             <!--android:title="Tools" />-->
         <item
+            android:id="@+id/view_own_video"
+            android:title="View own videos" />
+        <item
+            android:id="@+id/view_all_video"
+            android:title="View all videos" />
+        <item
         android:id="@+id/nav_logout"
         android:title="Logout" />
     </group>

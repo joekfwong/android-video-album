@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         app:srcCompat="@android:drawable/presence_video_away"
         android:id="@+id/imageView2"
-        android:layout_alignBottom="@+id/video_file_name" />
+        android:layout_alignBottom="@+id/upload_by"
+        android:layout_alignParentTop="true" />
 
     <TextView
         android:text="TextView"
@@ -23,4 +24,13 @@
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/imageView2"
         android:layout_marginStart="27dp" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/video_file_name"
+        android:layout_alignStart="@+id/video_file_name"
+        android:id="@+id/upload_by"
+        android:layout_alignEnd="@+id/video_file_name" />
 </RelativeLayout>

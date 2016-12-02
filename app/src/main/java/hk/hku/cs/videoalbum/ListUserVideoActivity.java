@@ -75,7 +75,72 @@ public class ListUserVideoActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        prepareList();
+        SharedPreferences preferences = this.getSharedPreferences("view-video-type", 0);
+
+        if (preferences.getBoolean("user-only-list", true)) {
+            prepareList();
+        } else {
+            prepareShareList();
+        }
+    }
+
+    private void prepareShareList() {
+        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/sharedvideolist.php";
+        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
+            boolean success;
+            String jsonString;
+
+            @Override
+            protected String doInBackground(String... arg0) {
+                success = true;
+                RemoteServerConnect connect = new RemoteServerConnect();
+                jsonString = connect.getUrlResponse(url);
+                if (jsonString.equals("Fail to login"))
+                    success = false;
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String response) {
+                if (success) {
+                    try {
+                        ListView listView = (ListView) findViewById(R.id.video_list);
+
+                        JSONObject rootJSONObj = new JSONObject(jsonString);
+                        JSONArray result = rootJSONObj.getJSONArray("videos");
+
+                        final ArrayList<String> filenamesList = new ArrayList<>();
+                        List<Map<String, String>> videoListName = new ArrayList<>();
+                        for (int i = 0; i < result.length(); i++) {
+                            String filename = result.getString(i);
+                            String[] token = filename.split("/");
+
+                            filenamesList.add("http://i.cs.hku.hk/~kfwong/videoalbum/" + filename);
+
+                            Map<String, String> map = new HashMap<>();
+                            map.put("videos", token[token.length - 1]);
+                            map.put("uploaduser", token[token.length - 2]);
+                            videoListName.add(map);
+                        }
+                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this,videoListName, R.layout.video_list_item, new String[]{"videos", "uploaduser"}, new int[]{R.id.video_file_name, R.id.upload_by});
+                        listView.setAdapter(listAdapter);
+                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                Intent myIntent = new Intent(ListUserVideoActivity.this, VideoPlayer.class);
+                                myIntent.putExtra("position", i);
+                                myIntent.putStringArrayListExtra("filelist", filenamesList);
+                                startActivityForResult(myIntent, 0);
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(ListUserVideoActivity.this, "Cannot list video", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute("");
     }
 
     private void prepareList() {
@@ -115,16 +180,14 @@ public class ListUserVideoActivity extends AppCompatActivity
 
                             Map<String, String> map = new HashMap<>();
                             map.put("videos", filename);
+                            map.put("uploaduser", username);
                             videoListName.add(map);
                         }
-                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this,videoListName, R.layout.video_list_item, new String[]{"videos"}, new int[]{R.id.video_file_name});
+                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this,videoListName, R.layout.video_list_item, new String[]{"videos", "uploaduser"}, new int[]{R.id.video_file_name, R.id.upload_by});
                         listView.setAdapter(listAdapter);
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                System.out.println(adapterView.getItemAtPosition(i));
-                                System.out.println(i);
-                                System.out.println(filenamesList.get(i));
                                 Intent myIntent = new Intent(ListUserVideoActivity.this, VideoPlayer.class);
                                 myIntent.putExtra("position", i);
                                 myIntent.putStringArrayListExtra("filelist", filenamesList);
@@ -198,6 +261,20 @@ public class ListUserVideoActivity extends AppCompatActivity
 //        } else if (id == R.id.nav_send) {
 //
 //        }
+        if (id == R.id.view_own_video) {
+            SharedPreferences preferences = this.getSharedPreferences("view-video-type", 0);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("user-only-list", true);
+            editor.apply();
+            prepareList();
+        }
+        if (id == R.id.view_all_video) {
+            SharedPreferences preferences = this.getSharedPreferences("view-video-type", 0);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("user-only-list", false);
+            editor.apply();
+            prepareShareList();
+        }
         if (id == R.id.nav_logout) {
             // logout
 
