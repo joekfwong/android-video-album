@@ -2,7 +2,6 @@ package hk.hku.cs.videoalbum;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,7 +15,6 @@ import android.widget.EditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import hk.hku.cs.videoalbum.helper.AlertBox;
 import hk.hku.cs.videoalbum.helper.RemoteServerConnect;
 
 public class MainActivity extends AppCompatActivity {

@@ -4,6 +4,7 @@ package hk.hku.cs.videoalbum;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -66,6 +67,9 @@ public class ListUserVideoActivity extends AppCompatActivity
         SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
         TextView textView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginNameTxt);
         textView.setText(preferences.getString("username", ""));
+
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.s01);
+        mediaPlayer.start();
     }
 
     @Override
