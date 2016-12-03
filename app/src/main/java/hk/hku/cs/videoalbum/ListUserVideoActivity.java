@@ -67,9 +67,6 @@ public class ListUserVideoActivity extends AppCompatActivity
         SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
         TextView textView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginNameTxt);
         textView.setText(preferences.getString("username", ""));
-
-        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.s01);
-        mediaPlayer.start();
     }
 
     @Override

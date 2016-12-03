@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
             myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             finishActivity (0);
             startActivityForResult(myIntent, 0);
+
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.s01);
+            mediaPlayer.start();
             return;
         }
 
@@ -116,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
                             myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                             startActivityForResult(myIntent, 0);
+
+                            MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.s01);
+                            mediaPlayer.start();
                         } else {
                             alert("Login", "Failure");
                         }
