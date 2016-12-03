@@ -131,15 +131,13 @@ public class VideoCaptureBrowserActivity extends Activity {
             mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    Intent backIntent = new Intent(VideoCaptureBrowserActivity.this, ListUserVideoActivity.class);
-                    startActivity(backIntent);
+                    finish();
                 }
             });
 
             mVideoView.start();
         } else if (requestCode == VIDEO_CAPTURE_REQUEST && resultCode == RESULT_CANCELED) {
-            Intent backIntent = new Intent(VideoCaptureBrowserActivity.this, ListUserVideoActivity.class);
-            startActivity(backIntent);
+            finish();
         }
     }
 
