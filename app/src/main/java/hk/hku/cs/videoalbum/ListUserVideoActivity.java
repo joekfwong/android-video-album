@@ -67,6 +67,27 @@ public class ListUserVideoActivity extends AppCompatActivity
         SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
         TextView textView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.loginNameTxt);
         textView.setText(preferences.getString("username", ""));
+
+
+        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
+
+            private MediaPlayer mediaPlayer;
+
+            @Override
+            protected String doInBackground(String... arg0) {
+                MediaPlayer mediaPlayer = MediaPlayer.create(ListUserVideoActivity.this, R.raw.s01);
+                mediaPlayer.start();
+
+                return "";
+            }
+
+            @Override
+            protected void onPostExecute(String response) {
+                if (mediaPlayer != null) {
+                    mediaPlayer.release();
+                }
+            }
+        }.execute("");
     }
 
     @Override
