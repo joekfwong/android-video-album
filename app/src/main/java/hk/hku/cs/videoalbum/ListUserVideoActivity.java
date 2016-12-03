@@ -9,6 +9,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -28,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +39,9 @@ import java.util.Map;
 
 import hk.hku.cs.videoalbum.helper.RemoteServerConnect;
 import hk.hku.cs.videoalbum.videocapture.VideoCaptureBrowserActivity;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ListUserVideoActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -131,7 +138,7 @@ public class ListUserVideoActivity extends AppCompatActivity
                             map.put("uploaduser", token[token.length - 2]);
                             videoListName.add(map);
                         }
-                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this,videoListName, R.layout.video_list_item, new String[]{"videos", "uploaduser"}, new int[]{R.id.video_file_name, R.id.upload_by});
+                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this, videoListName, R.layout.video_list_item, new String[]{"videos", "uploaduser"}, new int[]{R.id.video_file_name, R.id.upload_by});
                         listView.setAdapter(listAdapter);
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
@@ -192,7 +199,7 @@ public class ListUserVideoActivity extends AppCompatActivity
                             map.put("uploaduser", username);
                             videoListName.add(map);
                         }
-                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this,videoListName, R.layout.video_list_item, new String[]{"videos", "uploaduser"}, new int[]{R.id.video_file_name, R.id.upload_by});
+                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this, videoListName, R.layout.video_list_item, new String[]{"videos", "uploaduser"}, new int[]{R.id.video_file_name, R.id.upload_by});
                         listView.setAdapter(listAdapter);
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
@@ -203,6 +210,10 @@ public class ListUserVideoActivity extends AppCompatActivity
                                 startActivityForResult(myIntent, 0);
                             }
                         });
+
+                        listView.setLongClickable(true);
+                        registerForContextMenu(listView);       // pop delete menu
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -211,6 +222,17 @@ public class ListUserVideoActivity extends AppCompatActivity
                 }
             }
         }.execute("");
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        SharedPreferences preferences = this.getSharedPreferences("view-video-type", 0);
+        if (preferences.getBoolean("user-only-list", false)) {
+            super.onCreateContextMenu(menu, v, menuInfo);
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+        }
     }
 
     @Override
@@ -231,10 +253,11 @@ public class ListUserVideoActivity extends AppCompatActivity
         return true;
     }
 
-    public boolean onPrepareOptionsMenu (Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
 
         return false;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -291,4 +314,46 @@ public class ListUserVideoActivity extends AppCompatActivity
         return true;
     }
 
+    public void removeVideo(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        ListView listView = (ListView) findViewById(R.id.video_list);
+        SimpleAdapter adapter = (SimpleAdapter) listView.getAdapter();
+        String fileName = ((Map<String, String>) adapter.getItem(info.position)).get("videos");
+
+        SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
+        String userName = preferences.getString("username", "");
+
+        final String deleteUrl = getString(R.string.server_path) + "deletefile.php?user_name=" + userName + "&file_name=" + fileName;
+
+        Log.i("removeVideo video name", fileName);
+
+        new Thread(new Runnable() {
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+//                        prepareList();
+                    }
+                });
+
+
+                OkHttpClient client = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url(deleteUrl)
+                        .build();
+
+                try {
+                    Response response = client.newCall(request).execute();
+                    Log.i("Delete reponse", response.toString());
+                } catch (IOException e) {
+                    Log.d("Delete error", "ok http delete error");
+                    e.printStackTrace();
+                }
+
+                // update video list
+                prepareList();
+            }
+        }).start();
+
+    }
 }

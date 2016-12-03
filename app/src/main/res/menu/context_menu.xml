@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/item_delete"
+        android:actionViewClass="android.widget.ListView"
+        android:alphabeticShortcut="d"
+        android:enabled="true"
+
+        android:numericShortcut="1"
+        android:onClick="removeVideo"
+        android:title="Delete"
+        android:titleCondensed="delete"
+        android:visible="true" />
+
+</menu>
