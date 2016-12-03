@@ -58,7 +58,6 @@ public class VideoCaptureBrowserActivity extends Activity {
     private VideoView mVideoView;
 
     private String uploadServerUrl = "http://i.cs.hku.hk/~kfwong/videoalbum/upload.php";
-    private String uploadServerHome = "http://i.cs.hku.hk/~ltllu/php/upload.htm";
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +137,9 @@ public class VideoCaptureBrowserActivity extends Activity {
             });
 
             mVideoView.start();
+        } else if (requestCode == VIDEO_CAPTURE_REQUEST && resultCode == RESULT_CANCELED) {
+            Intent backIntent = new Intent(VideoCaptureBrowserActivity.this, ListUserVideoActivity.class);
+            startActivity(backIntent);
         }
     }
 

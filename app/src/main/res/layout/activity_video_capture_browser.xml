@@ -5,9 +5,7 @@
     android:layout_height="fill_parent">
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Camera Test"
-        />
+        android:layout_height="wrap_content" />
     <VideoView
         android:id="@+id/video_image"
         android:layout_width="fill_parent"

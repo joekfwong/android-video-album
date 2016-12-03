@@ -71,21 +71,12 @@ public class ListUserVideoActivity extends AppCompatActivity
 
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
 
-            private MediaPlayer mediaPlayer;
-
             @Override
             protected String doInBackground(String... arg0) {
                 MediaPlayer mediaPlayer = MediaPlayer.create(ListUserVideoActivity.this, R.raw.s01);
                 mediaPlayer.start();
 
                 return "";
-            }
-
-            @Override
-            protected void onPostExecute(String response) {
-                if (mediaPlayer != null) {
-                    mediaPlayer.release();
-                }
             }
         }.execute("");
     }
@@ -266,19 +257,6 @@ public class ListUserVideoActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
         if (id == R.id.view_own_video) {
             SharedPreferences preferences = this.getSharedPreferences("view-video-type", 0);
             SharedPreferences.Editor editor = preferences.edit();
