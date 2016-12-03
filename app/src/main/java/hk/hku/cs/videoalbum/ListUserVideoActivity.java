@@ -94,7 +94,7 @@ public class ListUserVideoActivity extends AppCompatActivity
     }
 
     private void prepareShareList() {
-        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/sharedvideolist.php";
+        final String url = getString(R.string.server_path) + "sharedvideolist.php";
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
             boolean success;
             String jsonString;
@@ -124,7 +124,7 @@ public class ListUserVideoActivity extends AppCompatActivity
                             String filename = result.getString(i);
                             String[] token = filename.split("/");
 
-                            filenamesList.add("http://i.cs.hku.hk/~kfwong/videoalbum/" + filename);
+                            filenamesList.add(ListUserVideoActivity.this.getString(R.string.server_path) + filename);
 
                             Map<String, String> map = new HashMap<>();
                             map.put("videos", token[token.length - 1]);
@@ -155,7 +155,7 @@ public class ListUserVideoActivity extends AppCompatActivity
     private void prepareList() {
         SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
         final String username = preferences.getString("username", "");
-        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/videolist.php?username=" + username;
+        final String url = getString(R.string.server_path) + "videolist.php?username=" + username;
 
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
             boolean success;
@@ -185,7 +185,7 @@ public class ListUserVideoActivity extends AppCompatActivity
                         for (int i = 0; i < result.length(); i++) {
                             String filename = result.getString(i);
 
-                            filenamesList.add("http://i.cs.hku.hk/~kfwong/videoalbum/videos/" + username + "/" + filename);
+                            filenamesList.add(ListUserVideoActivity.this.getString(R.string.server_path) + "videos/" + username + "/" + filename);
 
                             Map<String, String> map = new HashMap<>();
                             map.put("videos", filename);

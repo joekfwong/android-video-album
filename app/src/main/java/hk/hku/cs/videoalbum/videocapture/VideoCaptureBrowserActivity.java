@@ -57,7 +57,7 @@ public class VideoCaptureBrowserActivity extends Activity {
     private static final int VIDEO_CAPTURE_PERMISSION = 2222;
     private VideoView mVideoView;
 
-    private String uploadServerUrl = "http://i.cs.hku.hk/~kfwong/videoalbum/upload.php";
+    //private String uploadServerUrl = getString(R.string.server_path) + "upload.php";
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +115,7 @@ public class VideoCaptureBrowserActivity extends Activity {
                         }
                     });
 
-                    uploadFileOkHttp(uploadServerUrl, myFile);
+                    uploadFileOkHttp(VideoCaptureBrowserActivity.this.getString(R.string.server_path) + "upload.php", myFile);
                 }
             }).start();
 

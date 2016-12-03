@@ -72,7 +72,7 @@ public class SignUpActivity extends AppCompatActivity {
         pdialog.setMessage("Signing up ...");
         pdialog.show();
 
-        final String url = "http://i.cs.hku.hk/~kfwong/videoalbum/login.php?action=signup&username=" + username + "&userkey=" + password;
+        final String url = getString(R.string.server_path) + "login.php?action=signup&username=" + username + "&userkey=" + password;
 
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
             boolean success;
