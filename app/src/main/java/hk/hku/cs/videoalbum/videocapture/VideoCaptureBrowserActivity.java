@@ -57,6 +57,8 @@ public class VideoCaptureBrowserActivity extends Activity {
     private static final int VIDEO_CAPTURE_PERMISSION = 2222;
     private VideoView mVideoView;
 
+    private OkHttpClient client;
+
     //private String uploadServerUrl = getString(R.string.server_path) + "upload.php";
 
     public void onCreate(Bundle savedInstanceState) {
@@ -162,7 +164,7 @@ public class VideoCaptureBrowserActivity extends Activity {
         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, viduri);
         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
         intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 120);
-        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (4 * 1024 * 1024));
+        //intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (4 * 1024 * 1024));
 
         startActivityForResult(intent, VIDEO_CAPTURE_REQUEST);
     }
@@ -184,7 +186,7 @@ public class VideoCaptureBrowserActivity extends Activity {
                     .build();
 
             //TODO: by OkHttp
-            OkHttpClient client = new OkHttpClient();
+            client = new OkHttpClient();
             client.newCall(request).enqueue(new Callback() {
 
                 @Override
