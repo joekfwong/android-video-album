@@ -94,14 +94,27 @@ public class ListUserVideoActivity extends AppCompatActivity
         SharedPreferences preferences = this.getSharedPreferences("view-video-type", 0);
 
         if (preferences.getBoolean("user-only-list", true)) {
-            prepareList();
+            prepareList(false);
         } else {
-            prepareShareList();
+            prepareList(true);
         }
     }
 
-    private void prepareShareList() {
-        final String url = getString(R.string.server_path) + "sharedvideolist.php";
+    private String urlForVideoList(boolean listAllUserVideo) {
+        String url;
+        if (listAllUserVideo) {
+            url = getString(R.string.server_path) + "sharedvideolist.php";
+        } else {
+            SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
+            String username = preferences.getString("username", "");
+            url = getString(R.string.server_path) + "videolist.php?username=" + username;
+        }
+        return url;
+    }
+
+    private void prepareList(final boolean listAllUserVideo) {
+        final String url = urlForVideoList(listAllUserVideo);
+
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
             boolean success;
             String jsonString;
@@ -149,70 +162,14 @@ public class ListUserVideoActivity extends AppCompatActivity
                                 startActivityForResult(myIntent, 0);
                             }
                         });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Toast.makeText(ListUserVideoActivity.this, "Cannot list video", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.execute("");
-    }
 
-    private void prepareList() {
-        SharedPreferences preferences = this.getSharedPreferences("video-album-login", 0);
-        final String username = preferences.getString("username", "");
-        final String url = getString(R.string.server_path) + "videolist.php?username=" + username;
-
-        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
-            boolean success;
-            String jsonString;
-
-            @Override
-            protected String doInBackground(String... arg0) {
-                success = true;
-                RemoteServerConnect connect = new RemoteServerConnect();
-                jsonString = connect.getUrlResponse(url);
-                if (jsonString.equals("Fail to login"))
-                    success = false;
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(String response) {
-                if (success) {
-                    try {
-                        ListView listView = (ListView) findViewById(R.id.video_list);
-
-                        JSONObject rootJSONObj = new JSONObject(jsonString);
-                        JSONArray result = rootJSONObj.getJSONArray("videos");
-
-                        final ArrayList<String> filenamesList = new ArrayList<>();
-                        List<Map<String, String>> videoListName = new ArrayList<>();
-                        for (int i = 0; i < result.length(); i++) {
-                            String filename = result.getString(i);
-
-                            filenamesList.add(ListUserVideoActivity.this.getString(R.string.server_path) + "videos/" + username + "/" + filename);
-
-                            Map<String, String> map = new HashMap<>();
-                            map.put("videos", filename);
-                            map.put("uploaduser", username);
-                            videoListName.add(map);
+                        if (!listAllUserVideo) {
+                            listView.setLongClickable(true);
+                            registerForContextMenu(listView);       // pop delete menu
+                        } else {
+                            listView.setLongClickable(false);
+                            unregisterForContextMenu(listView);       // pop delete menu
                         }
-                        SimpleAdapter listAdapter = new SimpleAdapter(ListUserVideoActivity.this, videoListName, R.layout.video_list_item, new String[]{"videos", "uploaduser"}, new int[]{R.id.video_file_name, R.id.upload_by});
-                        listView.setAdapter(listAdapter);
-                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                Intent myIntent = new Intent(ListUserVideoActivity.this, VideoPlayer.class);
-                                myIntent.putExtra("position", i);
-                                myIntent.putStringArrayListExtra("filelist", filenamesList);
-                                startActivityForResult(myIntent, 0);
-                            }
-                        });
-
-                        listView.setLongClickable(true);
-                        registerForContextMenu(listView);       // pop delete menu
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -285,14 +242,14 @@ public class ListUserVideoActivity extends AppCompatActivity
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("user-only-list", true);
             editor.apply();
-            prepareList();
+            prepareList(false);
         }
         if (id == R.id.view_all_video) {
             SharedPreferences preferences = this.getSharedPreferences("view-video-type", 0);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("user-only-list", false);
             editor.apply();
-            prepareShareList();
+            prepareList(true);
         }
         if (id == R.id.nav_logout) {
             // logout
@@ -351,7 +308,7 @@ public class ListUserVideoActivity extends AppCompatActivity
                 }
 
                 // update video list
-                prepareList();
+                prepareList(false);
             }
         }).start();
 
